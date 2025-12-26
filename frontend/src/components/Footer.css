@@ -1,0 +1,16 @@
+.ss{
+    display: flex;
+    justify-content: space-between;
+}
+
+.yapping{
+    width: 400px;
+}
+
+.produk{
+    margin-right: 150px;
+}
+
+.contact{
+    margin-right: 200px;
+}

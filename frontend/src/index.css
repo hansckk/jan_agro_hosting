@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "leaflet/dist/leaflet.css";
+
+/*  */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+.plant-stem {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw-stem 1.5s ease-out forwards;
+}
+
+.plant-leaf {
+  transform-origin: bottom center;
+  opacity: 0;
+  transform: scale(0);
+  animation: grow-leaf 0.8s ease-out forwards;
+}
+
+.leaf-1 { animation-delay: 0.8s; }
+.leaf-2 { animation-delay: 1s; }
+.leaf-3 { animation-delay: 1.2s; }
+.leaf-4 { animation-delay: 1.4s; }
+
+@keyframes draw-stem {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes grow-leaf {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
