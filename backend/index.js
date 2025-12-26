@@ -1,76 +1,80 @@
-    const express = require("express");
-    const app = express();
-    const port = 3000;
-    const cors = require("cors");
-    const path = require("path");
-    const http = require("http"); // Import HTTP
-    const { Server } = require("socket.io"); 
-    const { connectDatabase } = require("./src/database/database"); 
+const express = require("express");
+const app = express();
+const port = 3000;
+const cors = require("cors");
+const path = require("path");
+const http = require("http"); // Import HTTP
+const { Server } = require("socket.io");
+const { connectDatabase } = require("./src/database/database");
 
-    connectDatabase(); 
-    app.use(
-    cors({
-        origin: "http://localhost:5173",
-        credentials: true,
-    })
-    );
-    app.use(express.urlencoded({ extended: true }));
-    app.use(express.json());
-    app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 
-    const server = http.createServer(app);
-    const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:5173", // URL Frontend
-        methods: ["GET", "POST"],
-        credentials: true
-    }
-    });
-    app.use((req, res, next) => {
-    req.io = io;
-    next();
-    });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+connectDatabase();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("public"));
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // URL Frontend
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 // Logic Socket
-    io.on("connection", (socket) => {
-    console.log(`User Connected: ${socket.id}`);
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
 
-    // User join room sesuai ID mereka
-    socket.on("join_chat", (userId) => {
-        socket.join(userId);
-        console.log(`User joined room: ${userId}`);
-    });
+  // User join room sesuai ID mereka
+  socket.on("join_chat", (userId) => {
+    socket.join(userId);
+    console.log(`User joined room: ${userId}`);
+  });
 
-    // Admin join room admin
-    socket.on("join_admin", () => {
-        socket.join("admin_channel");
-        console.log("Admin joined admin channel");
-    });
+  // Admin join room admin
+  socket.on("join_admin", () => {
+    socket.join("admin_channel");
+    console.log("Admin joined admin channel");
+  });
 
-    socket.on("disconnect", () => console.log("User Disconnected"));
-    });
+  socket.on("disconnect", () => console.log("User Disconnected"));
+});
 
+const authRoutes = require("./src/routes/authRoutes");
+const productsRoutes = require("./src/routes/productsRoutes");
+const voucherRoutes = require("./src/routes/voucherRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
+const userRoutes = require("./src/routes/userRoutes");
+const cartRoutes = require("./src/routes/cartRoutes");
+const checkoutRoutes = require("./src/routes/checkoutRoutes");
+const reviewRoutes = require("./src/routes/reviewRoutes");
+const chatRoutes = require("./src/routes/chatRoutes");
 
-    const authRoutes = require("./src/routes/authRoutes");
-    const productsRoutes = require("./src/routes/productsRoutes");
-    const voucherRoutes = require("./src/routes/voucherRoutes");
-    const adminRoutes = require("./src/routes/adminRoutes");
-    const userRoutes = require('./src/routes/userRoutes');
-    const cartRoutes = require('./src/routes/cartRoutes');
-    const checkoutRoutes = require('./src/routes/checkoutRoutes');
-    const reviewRoutes = require("./src/routes/reviewRoutes");
-    const chatRoutes = require("./src/routes/chatRoutes");
-
-    app.use("/api/auth", authRoutes);
-    app.use("/api/products", productsRoutes);
-    app.use("/api/vouchers", voucherRoutes); 
-    app.use("/api/admin", adminRoutes);
-    app.use('/api/users', userRoutes);
-    app.use('/api/cart', cartRoutes);
-    app.use('/api/checkouts', checkoutRoutes);
-    app.use("/api/reviews", reviewRoutes);
-    app.use("/api/chat", chatRoutes);
-
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productsRoutes);
+app.use("/api/vouchers", voucherRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/checkouts", checkoutRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/chat", chatRoutes);
 
 server.listen(port, () => {
   console.log(`✅ Server (Express + Socket.io) running on port ${port}`);
