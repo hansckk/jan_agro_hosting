@@ -20,7 +20,7 @@ RUN npm install --only=production
 
 COPY backend/ .
 
-COPY --from=builder /app/frontend/build ./public
+COPY --from=builder /app/frontend/dist ./public
 
 EXPOSE 8080
 
