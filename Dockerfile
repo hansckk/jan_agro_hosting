@@ -8,7 +8,7 @@ RUN npm install
 
 COPY frontend/ .
 
-RUN npm run dev
+RUN npm run build
 
 #backend
 FROM node:20-alpine

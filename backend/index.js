@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 8080;
 const cors = require("cors");
 const path = require("path");
 const http = require("http"); // Import HTTP
@@ -9,14 +9,10 @@ const { connectDatabase } = require("./src/database/database");
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 connectDatabase();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: true,
     credentials: true,
   })
 );
@@ -27,7 +23,7 @@ app.use(express.static("public"));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // URL Frontend
+    origin: "*", // URL Frontend
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -76,6 +72,10 @@ app.use("/api/checkouts", checkoutRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/chat", chatRoutes);
 
-server.listen(port, () => {
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+server.listen(port, "0.0.0.0", () => {
   console.log(`✅ Server (Express + Socket.io) running on port ${port}`);
 });
