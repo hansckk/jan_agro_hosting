@@ -22,6 +22,8 @@ COPY backend/ .
 
 COPY --from=builder /app/frontend/build ./public
 
+RUN npm run build && ls -la /app/frontend
+
 EXPOSE 8080
 
 CMD ["node", "index.js"]
