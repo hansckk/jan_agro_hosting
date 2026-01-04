@@ -18,11 +18,11 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm install --only=production
 
+RUN npm run build && ls -la /app/frontend
+
 COPY backend/ .
 
 COPY --from=builder /app/frontend/build ./public
-
-RUN npm run build && ls -la /app/frontend
 
 EXPOSE 8080
 
