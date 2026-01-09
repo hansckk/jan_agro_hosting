@@ -3,6 +3,12 @@ FROM node:20-alpine as builder
 
 WORKDIR /app/frontend
 
+ARG VITE_API_URL
+ARG VITE_MIDTRANS_CLIENT_KEY
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_MIDTRANS_CLIENT_KEY=$VITE_MIDTRANS_CLIENT_KEY
+
 COPY frontend/package*.json ./
 RUN npm install
 
