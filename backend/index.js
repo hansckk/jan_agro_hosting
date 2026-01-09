@@ -9,10 +9,6 @@ const { connectDatabase } = require("./src/database/database");
 
 app.use(express.static(path.join(__dirname, "public")));
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`✅ Server (Express + Socket.io) running on port ${port}`);
-});
-
 console.log("Starting server...");
 console.log("PORT:", process.env.PORT);
 
@@ -81,4 +77,8 @@ app.use("/api/chat", chatRoutes);
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+server.listen(port, "0.0.0.0", () => {
+  console.log(`✅ Server (Express + Socket.io) running on port ${port}`);
 });
