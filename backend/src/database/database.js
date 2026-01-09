@@ -9,11 +9,11 @@ async function connectDatabase() {
       throw new Error("MONGO_URI tidak ditemukan di file .env");
     }
     await mongoose.connect(uri);
-    
+
     console.log("✅ Berhasil connect ke MongoDB Atlas (Database: janAgro)");
-  } catch (error) { 
+  } catch (error) {
     console.error("❌ Gagal connect ke MongoDB: ", error);
-    process.exit(1); 
+    throw err;
   }
 }
 
