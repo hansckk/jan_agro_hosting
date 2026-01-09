@@ -28,6 +28,6 @@ COPY backend/ .
 
 COPY --from=builder /app/frontend/dist ./public
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["node", "index.js"]
