@@ -13,7 +13,6 @@ async function connectDatabase() {
     console.log("✅ Berhasil connect ke MongoDB Atlas (Database: janAgro)");
   } catch (error) {
     console.error("❌ Gagal connect ke MongoDB: ", error);
-    throw err;
   }
 }
 
