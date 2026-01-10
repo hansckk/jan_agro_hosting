@@ -1,7 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 
 // ✅ Fetch all vouchers
 export const fetchVouchers = createAsyncThunk(
@@ -11,7 +15,9 @@ export const fetchVouchers = createAsyncThunk(
       const response = await axios.get(`${API_URL}/vouchers/get-all-vouchers`);
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch vouchers");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch vouchers"
+      );
     }
   }
 );
@@ -21,10 +27,15 @@ export const createVoucher = createAsyncThunk(
   "vouchers/add-voucher",
   async (voucherData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/vouchers/add-voucher`, voucherData);
+      const response = await axios.post(
+        `${API_URL}/vouchers/add-voucher`,
+        voucherData
+      );
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to create voucher");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create voucher"
+      );
     }
   }
 );
@@ -34,10 +45,15 @@ export const updateVoucher = createAsyncThunk(
   "vouchers/update-voucher",
   async ({ id, voucherData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${API_URL}/vouchers/update-voucher/${id}`, voucherData);
+      const response = await axios.put(
+        `${API_URL}/vouchers/update-voucher/${id}`,
+        voucherData
+      );
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to update voucher");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update voucher"
+      );
     }
   }
 );
@@ -50,7 +66,9 @@ export const deleteVoucher = createAsyncThunk(
       await axios.delete(`${API_URL}/vouchers/delete-voucher/${id}`);
       return id;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to delete voucher");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete voucher"
+      );
     }
   }
 );
@@ -89,7 +107,9 @@ const voucherSlice = createSlice({
 
       // UPDATE
       .addCase(updateVoucher.fulfilled, (state, action) => {
-        const index = state.vouchers.findIndex(v => v._id === action.payload._id);
+        const index = state.vouchers.findIndex(
+          (v) => v._id === action.payload._id
+        );
         if (index !== -1) state.vouchers[index] = action.payload;
       })
       .addCase(updateVoucher.rejected, (state, action) => {
@@ -98,7 +118,7 @@ const voucherSlice = createSlice({
 
       // DELETE
       .addCase(deleteVoucher.fulfilled, (state, action) => {
-        state.vouchers = state.vouchers.filter(v => v._id !== action.payload);
+        state.vouchers = state.vouchers.filter((v) => v._id !== action.payload);
       })
       .addCase(deleteVoucher.rejected, (state, action) => {
         state.error = action.payload;

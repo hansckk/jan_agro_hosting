@@ -2,7 +2,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 
 // ✅ Fetch user cart
 export const fetchCart = createAsyncThunk(
@@ -19,7 +23,9 @@ export const fetchCart = createAsyncThunk(
       // Some APIs return data.data.items, some return data.data directly
       return res.data.data?.items || res.data.data || [];
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Gagal memuat keranjang");
+      return rejectWithValue(
+        err.response?.data?.message || "Gagal memuat keranjang"
+      );
     }
   }
 );
@@ -37,7 +43,9 @@ export const updateCartQuantity = createAsyncThunk(
       );
       return res.data.data?.items || res.data.data || [];
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Gagal memperbarui kuantitas.");
+      return rejectWithValue(
+        err.response?.data?.message || "Gagal memperbarui kuantitas."
+      );
     }
   }
 );
@@ -53,7 +61,9 @@ export const removeCartItem = createAsyncThunk(
       });
       return res.data.data?.items || res.data.data || [];
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Gagal menghapus item.");
+      return rejectWithValue(
+        err.response?.data?.message || "Gagal menghapus item."
+      );
     }
   }
 );

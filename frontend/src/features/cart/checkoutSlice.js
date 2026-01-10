@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/checkouts";
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === "production" ? "/api" : "http://localhost:3000/api");
+const API_URL = `${BASE_URL}/checkouts`;
 
 // Async thunk for order cancellation
 export const requestOrderCancellation = createAsyncThunk(
