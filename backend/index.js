@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config(); // Load .env at the very top
 const app = express();
 const port = process.env.PORT || 3000;
 const cors = require("cors");

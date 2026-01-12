@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 
 // --- CONFIG URL ---
-const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawUrl =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 const cleanBaseUrl = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 const SOCKET_URL = cleanBaseUrl.replace(/\/api$/, "");
 const API_BASE = cleanBaseUrl.endsWith("/api")
@@ -74,10 +78,10 @@ const ChatAdmin = () => {
       if (data.message.sender === "admin") return;
 
       const currentSelected = selectedChatRef.current;
-      
-      const isCurrentChat = 
-         (currentSelected && currentSelected._id === data.chatId) || 
-         (currentSelected && currentSelected.userId?._id === data.userId);
+
+      const isCurrentChat =
+        (currentSelected && currentSelected._id === data.chatId) ||
+        (currentSelected && currentSelected.userId?._id === data.userId);
 
       if (isCurrentChat) {
         updateMessageStatus(data.chatId, "read");
@@ -113,15 +117,15 @@ const ChatAdmin = () => {
     const handleStatusUpdate = (data) => {
       setChats((prev) =>
         prev.map((c) => {
-          const isTargetChat = 
-             c._id === data.chatId || 
-             c.userId?._id === data.userId;
+          const isTargetChat =
+            c._id === data.chatId || c.userId?._id === data.userId;
 
           if (isTargetChat) {
             const updatedMsgs = c.messages.map((m) => {
               if (m.sender === "admin") {
                 if (data.status === "read") return { ...m, status: "read" };
-                if (data.status === "delivered" && m.status === "sent") return { ...m, status: "delivered" };
+                if (data.status === "delivered" && m.status === "sent")
+                  return { ...m, status: "delivered" };
               }
               return m;
             });
@@ -133,15 +137,15 @@ const ChatAdmin = () => {
 
       setSelectedChat((prev) => {
         if (!prev) return null;
-        const isTargetChat = 
-             prev._id === data.chatId || 
-             prev.userId?._id === data.userId;
+        const isTargetChat =
+          prev._id === data.chatId || prev.userId?._id === data.userId;
 
         if (isTargetChat) {
           const updatedMsgs = prev.messages.map((m) => {
             if (m.sender === "admin") {
-                if (data.status === "read") return { ...m, status: "read" };
-                if (data.status === "delivered" && m.status === "sent") return { ...m, status: "delivered" };
+              if (data.status === "read") return { ...m, status: "read" };
+              if (data.status === "delivered" && m.status === "sent")
+                return { ...m, status: "delivered" };
             }
             return m;
           });
@@ -180,7 +184,9 @@ const ChatAdmin = () => {
       }
     } catch (e) {
       if (e.response?.status === 403)
-        setErrorMsg("Akses Ditolak. Pastikan role Anda memiliki izin akses chat.");
+        setErrorMsg(
+          "Akses Ditolak. Pastikan role Anda memiliki izin akses chat."
+        );
     }
   };
 
@@ -226,8 +232,9 @@ const ChatAdmin = () => {
       );
 
       if (res.data.success) {
-        const serverMsg = res.data.data.messages[res.data.data.messages.length - 1];
-        
+        const serverMsg =
+          res.data.data.messages[res.data.data.messages.length - 1];
+
         setSelectedChat((prev) => ({
           ...prev,
           messages: prev.messages.map((m) =>
@@ -256,22 +263,24 @@ const ChatAdmin = () => {
 
   const handleChatClick = (chat) => {
     if (selectedChat && selectedChat._id === chat._id) {
-        setSelectedChat(null);
+      setSelectedChat(null);
     } else {
-        setSelectedChat(chat);
-        // Langsung tandai read di local state agar badge hilang
-        setChats(prevChats => prevChats.map(c => {
-            if (c._id === chat._id) {
-                const updatedMessages = c.messages.map(m => {
-                    if (m.sender !== 'admin' && m.status !== 'read') {
-                        return { ...m, status: 'read' };
-                    }
-                    return m;
-                });
-                return { ...c, messages: updatedMessages };
-            }
-            return c;
-        }));
+      setSelectedChat(chat);
+      // Langsung tandai read di local state agar badge hilang
+      setChats((prevChats) =>
+        prevChats.map((c) => {
+          if (c._id === chat._id) {
+            const updatedMessages = c.messages.map((m) => {
+              if (m.sender !== "admin" && m.status !== "read") {
+                return { ...m, status: "read" };
+              }
+              return m;
+            });
+            return { ...c, messages: updatedMessages };
+          }
+          return c;
+        })
+      );
     }
   };
 
@@ -290,82 +299,84 @@ const ChatAdmin = () => {
         <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
           {chats.map((chat) => {
             const unreadCount = chat.messages.filter(
-                m => m.sender !== 'admin' && m.status !== 'read'
+              (m) => m.sender !== "admin" && m.status !== "read"
             ).length;
 
             return (
-                <div
+              <div
                 key={chat._id}
                 onClick={() => handleChatClick(chat)}
                 className={`p-3 rounded-xl cursor-pointer flex items-center gap-3 border relative ${
-                    selectedChat?._id === chat._id
+                  selectedChat?._id === chat._id
                     ? "bg-black text-white"
                     : "bg-white hover:bg-gray-50"
                 }`}
-                >
+              >
                 <div className="w-10 h-10 flex-shrink-0">
-                    {chat.userId?.avatar ? (
-                    <img 
-                        src={chat.userId.avatar} 
-                        alt={chat.userId.name} 
-                        className="w-full h-full rounded-full object-cover bg-white border border-gray-200"
+                  {chat.userId?.avatar ? (
+                    <img
+                      src={chat.userId.avatar}
+                      alt={chat.userId.name}
+                      className="w-full h-full rounded-full object-cover bg-white border border-gray-200"
                     />
-                    ) : (
+                  ) : (
                     <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-700 uppercase">
-                        {chat.userId?.name?.charAt(0) || "?"}
+                      {chat.userId?.name?.charAt(0) || "?"}
                     </div>
-                    )}
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center">
-                        <h4 className="font-semibold text-sm truncate pr-2">
-                            {chat.userId?.name || "Unknown"}
-                        </h4>
-                        
-                        <div className="flex flex-col items-end gap-1">
-                            <span
-                                className={`text-[10px] ${
-                                selectedChat?._id === chat._id
-                                    ? "text-gray-300"
-                                    : "text-gray-400"
-                                }`}
-                            >
-                                {new Date(chat.lastMessageAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                })}
-                            </span>
-                            
-                            {/* BADGE UNREAD PER USER */}
-                            {unreadCount > 0 && (
-                                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full min-w-[18px] text-center shadow-sm animate-pulse">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </div>
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-semibold text-sm truncate pr-2">
+                      {chat.userId?.name || "Unknown"}
+                    </h4>
+
+                    <div className="flex flex-col items-end gap-1">
+                      <span
+                        className={`text-[10px] ${
+                          selectedChat?._id === chat._id
+                            ? "text-gray-300"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {new Date(chat.lastMessageAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+
+                      {/* BADGE UNREAD PER USER */}
+                      {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full min-w-[18px] text-center shadow-sm animate-pulse">
+                          {unreadCount}
+                        </span>
+                      )}
                     </div>
-                    
-                    <div className="flex items-center gap-1 mt-0.5">
+                  </div>
+
+                  <div className="flex items-center gap-1 mt-0.5">
                     {chat.messages.length > 0 &&
-                        chat.messages[chat.messages.length - 1]?.sender ===
+                      chat.messages[chat.messages.length - 1]?.sender ===
                         "admin" && (
                         <StatusIcon
-                            status={chat.messages[chat.messages.length - 1]?.status}
+                          status={
+                            chat.messages[chat.messages.length - 1]?.status
+                          }
                         />
-                        )}
+                      )}
                     <p
-                        className={`text-xs truncate ${
+                      className={`text-xs truncate ${
                         selectedChat?._id === chat._id
-                            ? "text-gray-300"
-                            : "text-gray-500"
-                        }`}
+                          ? "text-gray-300"
+                          : "text-gray-500"
+                      }`}
                     >
-                        {chat.messages[chat.messages.length - 1]?.text}
+                      {chat.messages[chat.messages.length - 1]?.text}
                     </p>
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             );
           })}
         </div>
@@ -378,9 +389,9 @@ const ChatAdmin = () => {
             <div className="px-6 py-4 bg-white border-b border-gray-100 shadow-sm z-10 flex items-center gap-3">
               <div className="w-10 h-10 flex-shrink-0">
                 {selectedChat.userId?.avatar ? (
-                  <img 
-                    src={selectedChat.userId.avatar} 
-                    alt={selectedChat.userId.name} 
+                  <img
+                    src={selectedChat.userId.avatar}
+                    alt={selectedChat.userId.name}
                     className="w-full h-full rounded-full object-cover border border-gray-200"
                   />
                 ) : (

@@ -15,10 +15,14 @@ import UserAdmin from "../admin/UserAdmin";
 import ProdukAdmin from "../admin/ProdukAdmin";
 import SettingAdmin from "../admin/SettingAdmin";
 import Voucher from "../admin/Voucher";
-import ChatAdmin from "../admin/ChatAdmin"; 
+import ChatAdmin from "../admin/ChatAdmin";
 
 // --- CONFIG URL & SOCKET ---
-const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawUrl =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 const cleanBaseUrl = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 const SOCKET_URL = cleanBaseUrl.replace(/\/api$/, "");
 const API_BASE = cleanBaseUrl.endsWith("/api")
@@ -187,7 +191,6 @@ function Admin({
   return (
     // 'items-start' penting agar sidebar tidak ketarik ke bawah
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 text-black pt-20 sm:pt-24 items-start">
-      
       {/* Overlay untuk Mobile */}
       {isSidebarOpen && (
         <div

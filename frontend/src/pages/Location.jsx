@@ -5,7 +5,11 @@ import axios from "axios";
 import io from "socket.io-client";
 
 // --- CONFIG URL ---
-const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawUrl =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 const cleanBaseUrl = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 const SOCKET_URL = cleanBaseUrl.replace(/\/api$/, "");
 const API_BASE = cleanBaseUrl.endsWith("/api")
@@ -14,10 +18,13 @@ const API_BASE = cleanBaseUrl.endsWith("/api")
 
 // --- KOMPONEN IKON STATUS ---
 const StatusIcon = ({ status }) => {
-  if (status === "pending") return <Clock size={12} className="text-gray-400" />;
+  if (status === "pending")
+    return <Clock size={12} className="text-gray-400" />;
   if (status === "sent") return <Check size={12} className="text-gray-400" />;
-  if (status === "delivered") return <CheckCheck size={12} className="text-gray-400" />;
-  if (status === "read") return <CheckCheck size={12} className="text-blue-500" />;
+  if (status === "delivered")
+    return <CheckCheck size={12} className="text-gray-400" />;
+  if (status === "read")
+    return <CheckCheck size={12} className="text-blue-500" />;
   return <Check size={12} className="text-gray-400" />;
 };
 
@@ -25,7 +32,7 @@ const Location = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMsg, setInputMsg] = useState("");
-  
+
   // 1. STATE BARU UNTUK NOTIFIKASI
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -53,22 +60,22 @@ const Location = () => {
       // Setup Socket
       socketRef.current = io(SOCKET_URL);
       const userId = user._id || user.id;
-      
+
       console.log("🔌 User Socket Connecting...");
       socketRef.current.emit("join_chat", userId);
 
       // 1. TERIMA PESAN
       socketRef.current.on("receive_message", (message) => {
-        // Jika chat sedang terbuka, kirim status READ. 
+        // Jika chat sedang terbuka, kirim status READ.
         // Jika tertutup, kirim DELIVERED dan tambah counter notifikasi.
         if (isChatOpen) {
-            updateStatus("read");
+          updateStatus("read");
         } else {
-            updateStatus("delivered");
-            // Cek apakah pesan dari admin, jika ya tambah notif
-            if (message.sender === 'admin') {
-                setUnreadCount(prev => prev + 1);
-            }
+          updateStatus("delivered");
+          // Cek apakah pesan dari admin, jika ya tambah notif
+          if (message.sender === "admin") {
+            setUnreadCount((prev) => prev + 1);
+          }
         }
         setMessages((prev) => [...prev, message]);
       });
@@ -89,7 +96,7 @@ const Location = () => {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [user, token, isChatOpen]); 
+  }, [user, token, isChatOpen]);
 
   // Saat jendela chat dibuka, tandai pesan admin sebagai READ dan Reset Notif
   useEffect(() => {
@@ -101,7 +108,7 @@ const Location = () => {
         updateStatus("read");
       }
     }
-    
+
     // Auto scroll
     if (isChatOpen && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
@@ -109,7 +116,7 @@ const Location = () => {
         block: "nearest",
       });
     }
-  }, [isChatOpen, messages.length]); 
+  }, [isChatOpen, messages.length]);
 
   const fetchMessages = async () => {
     try {
@@ -122,8 +129,10 @@ const Location = () => {
 
         // Hitung pesan yang belum dibaca saat awal load
         if (!isChatOpen) {
-            const unread = msgs.filter(m => m.sender === 'admin' && m.status !== 'read').length;
-            setUnreadCount(unread);
+          const unread = msgs.filter(
+            (m) => m.sender === "admin" && m.status !== "read"
+          ).length;
+          setUnreadCount(unread);
         }
       }
     } catch (error) {}
@@ -149,7 +158,8 @@ const Location = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data.success) {
-        const serverMsg = res.data.data.messages[res.data.data.messages.length - 1];
+        const serverMsg =
+          res.data.data.messages[res.data.data.messages.length - 1];
         setMessages((prev) => prev.map((m) => (m === tempMsg ? serverMsg : m)));
       }
     } catch (error) {
@@ -159,8 +169,8 @@ const Location = () => {
 
   // Handler saat tombol chat dibuka
   const handleOpenChat = () => {
-      setIsChatOpen(true);
-      setUnreadCount(0); // Reset notifikasi
+    setIsChatOpen(true);
+    setUnreadCount(0); // Reset notifikasi
   };
 
   return (
@@ -198,8 +208,8 @@ const Location = () => {
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
-              
-              <MessageCircle size={24} /> 
+
+              <MessageCircle size={24} />
               <span className="font-bold hidden sm:inline">Chat Admin</span>
             </button>
           )}

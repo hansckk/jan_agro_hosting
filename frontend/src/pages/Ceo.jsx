@@ -20,7 +20,11 @@ import UlasanCeo from "../ceo/UlasanCeo";
 import ChatCeo from "../ceo/ChatCeo";
 
 // --- CONFIG URL & SOCKET ---
-const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawUrl =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 const cleanBaseUrl = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 const SOCKET_URL = cleanBaseUrl.replace(/\/api$/, "");
 const API_BASE = cleanBaseUrl.endsWith("/api")
@@ -183,7 +187,6 @@ function Ceo({
   return (
     // PERBAIKAN 1: Tambahkan 'items-start' dan 'sm:pt-24'
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 text-black pt-20 sm:pt-24 items-start">
-      
       {/* Overlay Mobile */}
       {isSidebarOpen && (
         <div
