@@ -15,6 +15,56 @@ const emitStatusUpdate = (io, chatId, userId, status) => {
   io.to(userId.toString()).emit("message_status_update", { chatId, status });
 };
 
+router.post("/update-status", authenticateToken, async (req, res) => {
+  try {
+    console.log("ini testing mengecek update status");
+
+    const { chatId, status } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role?.toLowerCase();
+
+    let chat;
+    if (userRole === "pemilik" || userRole === "owner") {
+      chat = await Chat.findById(chatId);
+    } else {
+      chat = await Chat.findOne({ userId });
+    }
+
+    if (!chat) return res.status(404).json({ success: false });
+
+    const senderToUpdate =
+      userRole === "pemilik" || userRole === "owner" ? "user" : "admin";
+    let isUpdated = false;
+
+    chat.messages.forEach((msg) => {
+      if (msg.sender === senderToUpdate) {
+        if (status === "delivered" && msg.status === "sent") {
+          msg.status = "delivered";
+          isUpdated = true;
+        } else if (status === "read" && msg.status !== "read") {
+          msg.status = "read";
+          isUpdated = true;
+        }
+      }
+    });
+
+    if (isUpdated) {
+      await chat.save();
+      // Emit ke socket
+      req.io
+        .to("admin_channel")
+        .emit("message_status_update", { chatId, userId: chat.userId, status });
+      req.io
+        .to(chat.userId.toString())
+        .emit("message_status_update", { chatId, status });
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 1. User Kirim Pesan
 router.post("/send", authenticateToken, async (req, res) => {
   try {
@@ -77,56 +127,6 @@ router.post("/admin/reply", authenticateToken, isPemilik, async (req, res) => {
       .emit("receive_message", chat.messages[chat.messages.length - 1]);
 
     res.status(200).json({ success: true, data: chat });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-router.post("/update-status", authenticateToken, async (req, res) => {
-  try {
-    console.log("ini testing mengecek update status");
-
-    const { chatId, status } = req.body;
-    const userId = req.user.id;
-    const userRole = req.user.role?.toLowerCase();
-
-    let chat;
-    if (userRole === "pemilik" || userRole === "owner") {
-      chat = await Chat.findById(chatId);
-    } else {
-      chat = await Chat.findOne({ userId });
-    }
-
-    if (!chat) return res.status(404).json({ success: false });
-
-    const senderToUpdate =
-      userRole === "pemilik" || userRole === "owner" ? "user" : "admin";
-    let isUpdated = false;
-
-    chat.messages.forEach((msg) => {
-      if (msg.sender === senderToUpdate) {
-        if (status === "delivered" && msg.status === "sent") {
-          msg.status = "delivered";
-          isUpdated = true;
-        } else if (status === "read" && msg.status !== "read") {
-          msg.status = "read";
-          isUpdated = true;
-        }
-      }
-    });
-
-    if (isUpdated) {
-      await chat.save();
-      // Emit ke socket
-      req.io
-        .to("admin_channel")
-        .emit("message_status_update", { chatId, userId: chat.userId, status });
-      req.io
-        .to(chat.userId.toString())
-        .emit("message_status_update", { chatId, status });
-    }
-
-    res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
