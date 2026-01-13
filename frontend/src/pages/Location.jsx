@@ -49,7 +49,10 @@ const Location = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (e) {
-      // Silent error
+      if (e.response && e.response.status === 404) {
+        console.warn("Backend route belum ready, skip update status.");
+        return;
+      }
     }
   };
 
