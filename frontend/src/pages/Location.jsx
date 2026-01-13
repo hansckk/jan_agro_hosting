@@ -42,6 +42,13 @@ const Location = () => {
 
   // Fungsi update status pesan lawan
   const updateStatus = async (status) => {
+    if (
+      user?.role === "admin" ||
+      user?.role === "owner" ||
+      user?.role === "ceo" ||
+      user?.role === "pemilik"
+    )
+      return;
     try {
       await axios.post(
         `${API_BASE}/chat/update-status`,
