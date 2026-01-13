@@ -1,6 +1,12 @@
 const express = require("express");
 require("dotenv").config(); // Load .env at the very top
 const app = express();
+
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  next();
+});
+
 const port = process.env.PORT || 3000;
 const cors = require("cors");
 const path = require("path");
