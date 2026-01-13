@@ -48,7 +48,11 @@ function App() {
   const [checkouts, setCheckouts] = useState([]);
   const totalCartQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.MODE === "production"
+      ? "/api"
+      : "http://localhost:3000/api");
 
   const navigate = useNavigate();
 
@@ -740,21 +744,13 @@ function App() {
           <Route
             path="/laporan-stok-admin"
             element={
-              isAdmin ? (
-                <LaporanStokAdmin />
-              ) : (
-                <Home API_URL={API_URL} />
-              )
+              isAdmin ? <LaporanStokAdmin /> : <Home API_URL={API_URL} />
             }
           />
           <Route
             path="/laporan-movement-admin"
             element={
-              isAdmin ? (
-                <LaporanMovementAdmin />
-              ) : (
-                <Home API_URL={API_URL} />
-              )
+              isAdmin ? <LaporanMovementAdmin /> : <Home API_URL={API_URL} />
             }
           />
           <Route
@@ -816,7 +812,11 @@ function App() {
           <Route
             path="/laporan-metode-pembayaran-ceo"
             element={
-              isPemilik ? <LaporanMetodePembayaranCeo /> : <Home API_URL={API_URL} />
+              isPemilik ? (
+                <LaporanMetodePembayaranCeo />
+              ) : (
+                <Home API_URL={API_URL} />
+              )
             }
           />
           <Route path="/invoice/:orderId" element={<Invoice />} />
