@@ -47,7 +47,11 @@ function UserCeo() {
   });
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.MODE === "production"
+      ? "/api"
+      : "http://localhost:3000/api");
 
   useEffect(() => {
     const fetchUsers = async () => {
