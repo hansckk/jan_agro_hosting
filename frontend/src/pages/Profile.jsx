@@ -51,6 +51,8 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
   }, [user]);
 
   const handleFileChange = async (event) => {
+    console.log(user._id);
+
     const file = event.target.files[0];
     if (!file) return;
 
@@ -65,6 +67,13 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
           return;
         }
 
+        console.log("[Frontend] Starting avatar upload");
+        console.log("[Frontend] File:", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
+
         const response = await axios.put(
           `${API_URL}/users/update-avatar/${user._id}`,
           formData,
@@ -76,13 +85,17 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
           }
         );
 
+        console.log("[Frontend] Upload response:", response.data);
+
         if (response.data.success) {
+          console.log("[Frontend] Avatar URL from server:", response.data.user.avatar);
           onAvatarUpdateSuccess(response.data.user);
           setPreview(response.data.user.avatar);
           setUploadError("");
         }
       } catch (error) {
         console.error("Upload error:", error);
+        console.error("Upload error response:", error.response?.data);
         const message =
           error.response?.data?.message || "Gagal mengupload gambar.";
         setUploadError(message);

@@ -3,42 +3,22 @@ const router = express.Router();
 const User = require("../models/User");
 const { authenticateToken } = require("../middleware/authenticate");
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const { Storage } = require("@google-cloud/storage");
+const path = require("path");
 const bcrypt = require("bcrypt");
 
-// 1. DEBUGGING: Cek apakah env terbaca di terminal saat server jalan
-console.log("--- Cek Cloudinary Config ---");
-console.log(
-  "Cloud Name:",
-  process.env.CLOUDINARY_CLOUD_NAME ? "Terbaca" : "MISSING"
-);
-console.log("API Key:", process.env.CLOUDINARY_API_KEY ? "Terbaca" : "MISSING");
-console.log(
-  "API Secret:",
-  process.env.CLOUDINARY_API_SECRET ? "Terbaca" : "MISSING"
-);
+const serviceKey = path.join(__dirname, "../jan-agro-889a63abb48a.json");
 
-// 2. Konfigurasi Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const storageGCS = new Storage({
+  keyFilename: serviceKey,
+  projectId: "jan-agro",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: "user",
-      format: file.mimetype.split("/")[1],
-      public_id: `avatar-${req.user.id}-${Date.now()}`,
-    };
-  },
-});
+const bucketName = "jan-agro-storage";
+const bucket = storageGCS.bucket(bucketName);
 
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (
@@ -53,24 +33,41 @@ const upload = multer({
   },
 });
 
+const uploadToGCS = (file, userId) => {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject("No file received");
+
+    const fileExtension = file.mimetype.split("/")[1];
+    const newFileName = `user/avatar-${userId}-${Date.now()}.${fileExtension}`;
+
+    const blob = bucket.file(newFileName);
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    blobStream.on("error", (err) => {
+      console.error("[GCS ERROR] Detailed error:", err);
+      reject(new Error(`Google Storage Upload Failed: ${err.message}`));
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${newFileName}`;
+      console.log("[GCS SUCCESS] File uploaded to:", publicUrl);
+      resolve(publicUrl);
+    });
+
+    blobStream.end(file.buffer);
+  });
+};
+
 router.put(
   "/update-avatar/:userId",
   authenticateToken,
-  (req, res, next) => {
-    upload.single("avatar")(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Multer Error: ${err.message}` });
-      } else if (err) {
-        console.error("Upload Error:", err);
-        return res
-          .status(500)
-          .json({ success: false, message: `Upload Gagal: ${err.message}` });
-      }
-      next();
-    });
-  },
+  upload.single("avatar"),
   async (req, res) => {
     if (req.user.id !== req.params.userId) {
       return res
@@ -78,15 +75,24 @@ router.put(
         .json({ success: false, message: "Akses ditolak." });
     }
 
-    try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: "Tidak ada file gambar yang dikirim.",
-        });
-      }
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Tidak ada file gambar yang dikirim.",
+      });
+    }
 
-      console.log("File berhasil upload ke Cloudinary:", req.file.path); // Debug URL
+    try {
+      console.log(`[GCS] Starting avatar upload for user: ${req.user.id}`);
+      console.log(`[GCS] File info:`, {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+      });
+
+      const publicUrl = await uploadToGCS(req.file, req.user.id);
+
+      console.log(`[GCS] Upload successful: ${publicUrl}`);
 
       const user = await User.findById(req.params.userId);
       if (!user) {
@@ -95,7 +101,7 @@ router.put(
           .json({ success: false, message: "Pengguna tidak ditemukan." });
       }
 
-      user.avatar = req.file.path;
+      user.avatar = publicUrl;
       await user.save();
 
       const userResponse = user.toObject();
@@ -107,10 +113,15 @@ router.put(
         user: userResponse,
       });
     } catch (error) {
-      console.error("Database Error:", error);
+      console.error("[GCS ERROR] Avatar upload failed:", {
+        errorMessage: error.message,
+        errorStack: error.stack,
+        userId: req.user.id,
+      });
       res.status(500).json({
         success: false,
-        message: "Terjadi kesalahan pada server database.",
+        message: "Gagal memperbarui avatar (Server Error).",
+        error: error.message,
       });
     }
   }
@@ -118,10 +129,7 @@ router.put(
 
 router.put("/update-address/:userId", authenticateToken, async (req, res) => {
   if (req.user.id !== req.params.userId) {
-    return res.status(403).json({
-      success: false,
-      message: "Akses ditolak: Anda tidak diizinkan untuk mengedit alamat ini.",
-    });
+    return res.status(403).json({ success: false, message: "Akses ditolak." });
   }
 
   try {
@@ -160,10 +168,7 @@ router.put("/update-address/:userId", authenticateToken, async (req, res) => {
 
 router.put("/update-profile/:userId", authenticateToken, async (req, res) => {
   if (req.user.id !== req.params.userId) {
-    return res.status(403).json({
-      success: false,
-      message: "Akses ditolak: Anda tidak diizinkan untuk mengedit profil ini.",
-    });
+    return res.status(403).json({ success: false, message: "Akses ditolak." });
   }
   try {
     const { profileData, currentPassword, newPassword } = req.body;

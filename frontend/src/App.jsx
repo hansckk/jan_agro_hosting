@@ -107,37 +107,7 @@ function App() {
   // You would also add functions here to fetch reviews, checkouts, etc.
 
   const [users, setUsers] = useState([]);
-
-  const [adminUser, setAdminUser] = useState({
-    id: 99,
-    username: "admin",
-    name: "Admin",
-    email: "admin@gmail.com",
-    password: "admin",
-    joinDate: "2022",
-    avatar: null,
-    isBanned: false,
-    noTelp: "81111111111",
-    alamat: "Kantor Pusat JanAgro, Jl. Teknologi No. 10, Surabaya",
-  });
-  const [vouchers, setVouchers] = useState([
-    {
-      id: 1,
-      code: "HEMAT10",
-      discountPercentage: 10,
-      maxUses: 100,
-      currentUses: 25,
-      isActive: true,
-    },
-    {
-      id: 2,
-      code: "JANAGRO50",
-      discountPercentage: 50,
-      maxUses: 20,
-      currentUses: 19,
-      isActive: true,
-    },
-  ]);
+  const [vouchers, setVouchers] = useState([]);
   const [reviews, setReviews] = useState([
     {
       id: 101,
@@ -162,31 +132,8 @@ function App() {
     },
   ]);
 
-  const [returns, setReturns] = useState([
-    {
-      id: 1,
-      orderId: 1005,
-      reason:
-        "Barang yang diterima tidak sesuai dengan deskripsi, gagangnya terasa ringkih.",
-      videos: ["dummy_video_1.mp4"],
-      photos: [
-        "dummy_photo_1.jpg",
-        "dummy_photo_2.jpg",
-        "dummy_photo_3.jpg",
-        "dummy_photo_4.jpg",
-        "dummy_photo_5.jpg",
-        "dummy_photo_6.jpg",
-      ],
-    },
-  ]);
-  const [cancellations, setCancellations] = useState([
-    {
-      id: 1,
-      orderId: 1003,
-      reason: "Saya salah memasukkan alamat pengiriman.",
-    },
-    { id: 2, orderId: 1006, reason: "Tidak sengaja melakukan pemesanan." },
-  ]);
+  const [returns, setReturns] = useState([]);
+  const [cancellations, setCancellations] = useState([]);
 
   const handleAddToCart = async (productId) => {
     if (!productId) {
@@ -373,21 +320,8 @@ function App() {
     navigate("/pesanan");
   };
 
-  const handleAvatarChange = (newAvatarUrl) => {
-    if (!user) return;
-    const updatedUser = { ...user, avatar: newAvatarUrl };
-    setUser(updatedUser);
-    if (updatedUser.id === adminUser.id) {
-      setAdminUser(updatedUser);
-    } else {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
-      );
-    }
-  };
   const handleProfileSave = async (userId, payload) => {
     if (!token) {
-      // Ambil token dari Redux
       return {
         success: false,
         message: "Autentikasi gagal. Token tidak tersedia.",
@@ -402,7 +336,6 @@ function App() {
         }
       );
       if (response.data.success) {
-        // Hapus setUser, cukup dispatch ke Redux
         dispatch(setCredentials({ user: response.data.user, token }));
         return { success: true, message: "Profil berhasil diperbarui!" };
       }
@@ -412,6 +345,19 @@ function App() {
         message:
           error.response?.data?.message || "Terjadi kesalahan pada server.",
       };
+    }
+  };
+
+  const handleAvatarUpdateSuccess = (updatedUser) => {
+    console.log(
+      "App.jsx: Menerima user baru dengan avatar:",
+      updatedUser.avatar
+    );
+
+    if (updatedUser && token) {
+      dispatch(setCredentials({ user: updatedUser, token: token }));
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
     }
   };
 
@@ -430,6 +376,7 @@ function App() {
     }
     return { success: true, message: "Password updated successfully!" };
   };
+
   const handleUpdateUserByAdmin = (userId, updatedData) =>
     setUsers(
       users.map((u) => (u.id === userId ? { ...u, ...updatedData } : u))
@@ -590,10 +537,6 @@ function App() {
     fetchProducts();
   }, []);
 
-  const handleAvatarUpdateSuccess = (updatedUser) => {
-    // Dispatch ke Redux untuk memperbarui state user di seluruh aplikasi
-    dispatch(setCredentials({ user: updatedUser, token: token }));
-  };
   return (
     <div className="min-h-screen bg-white">
       <Navbar
