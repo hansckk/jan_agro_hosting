@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link} from "react-router-dom"; 
-import axios from "axios"; 
+import { Link } from "react-router-dom";
+import axios from "axios";
 import {
   Star,
   ArrowLeft,
@@ -8,10 +8,14 @@ import {
   AlertCircle,
   CheckCircle,
   Truck,
-  PlayCircle 
+  PlayCircle,
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 
 const Notification = ({ message, type }) => {
   if (!message) return null;
@@ -22,7 +26,11 @@ const Notification = ({ message, type }) => {
         isError ? "bg-red-600 text-white" : "bg-green-600 text-white"
       }`}
     >
-      {isError ? <AlertCircle size={20} className="shrink-0" /> : <CheckCircle size={20} className="shrink-0" />}
+      {isError ? (
+        <AlertCircle size={20} className="shrink-0" />
+      ) : (
+        <CheckCircle size={20} className="shrink-0" />
+      )}
       <span className="text-sm sm:text-base">{message}</span>
     </div>
   );
@@ -42,17 +50,11 @@ const StarRating = ({ rating }) => (
   </div>
 );
 
-const ProductDetail = ({
-  product,
-  users,
-  user,
-  onAddToCart,
-  cartCount,
-}) => {
+const ProductDetail = ({ product, users, user, onAddToCart, cartCount }) => {
   const [ratingFilter, setRatingFilter] = useState(0);
   const [mediaFilter, setMediaFilter] = useState("all");
   const [notification, setNotification] = useState(null);
-  
+
   const [reviewsList, setReviewsList] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
@@ -60,7 +62,9 @@ const ProductDetail = ({
     const fetchReviews = async () => {
       if (!product?._id) return;
       try {
-        const response = await axios.get(`${API_URL}/reviews/product/${product._id}`);
+        const response = await axios.get(
+          `${API_URL}/reviews/product/${product._id}`
+        );
         if (response.data.success) {
           setReviewsList(response.data.data);
         }
@@ -118,7 +122,7 @@ const ProductDetail = ({
   return (
     <>
       <Notification message={notification?.message} type={notification?.type} />
-      
+
       {/* Fixed Icons Responsive */}
       <div className="fixed top-20 sm:top-24 right-2 sm:right-8 z-30 flex flex-col gap-3 sm:gap-4 scale-90 sm:scale-100 origin-right">
         <Link
@@ -153,7 +157,6 @@ const ProductDetail = ({
 
           {/* Main Layout: Stack on mobile, Grid on large screens */}
           <div className="flex flex-col lg:grid lg:grid-cols-5 gap-8 lg:gap-12">
-            
             {/* Image Section */}
             <div className="lg:col-span-2 flex items-center justify-center bg-gray-100 rounded-sm h-64 sm:h-96 lg:h-96 overflow-hidden border shrink-0">
               {product.image ? (
@@ -199,8 +202,10 @@ const ProductDetail = ({
           </div>
 
           <div className="mt-12 sm:mt-16 border-t pt-8 sm:pt-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ulasan Produk ({reviewsList.length})</h2>
-            
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+              Ulasan Produk ({reviewsList.length})
+            </h2>
+
             {/* Filter Section Responsive */}
             <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 border rounded-sm">
               <div className="flex-1">
@@ -257,26 +262,29 @@ const ProductDetail = ({
             ) : filteredReviews.length > 0 ? (
               <div className="space-y-6 sm:space-y-8">
                 {filteredReviews.map((review) => (
-                  <div key={review._id} className="flex flex-col sm:flex-row gap-4 border-b pb-8 last:border-b-0">
+                  <div
+                    key={review._id}
+                    className="flex flex-col sm:flex-row gap-4 border-b pb-8 last:border-b-0"
+                  >
                     <div className="flex items-center gap-3 sm:block">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center font-bold text-gray-500 overflow-hidden border">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center font-bold text-gray-500 overflow-hidden border">
                         {review.userAvatar ? (
-                            <img
+                          <img
                             src={review.userAvatar}
                             alt="avatar"
                             className="w-full h-full object-cover"
-                            />
+                          />
                         ) : (
-                            review.userName.charAt(0).toUpperCase()
+                          review.userName.charAt(0).toUpperCase()
                         )}
-                        </div>
-                        {/* Name showing next to avatar on mobile */}
-                        <div className="sm:hidden">
-                            <p className="font-semibold text-gray-900 text-sm">
-                                {review.userName}
-                            </p>
-                            <StarRating rating={review.rating} />
-                        </div>
+                      </div>
+                      {/* Name showing next to avatar on mobile */}
+                      <div className="sm:hidden">
+                        <p className="font-semibold text-gray-900 text-sm">
+                          {review.userName}
+                        </p>
+                        <StarRating rating={review.rating} />
+                      </div>
                     </div>
 
                     <div className="flex-1">
@@ -289,23 +297,29 @@ const ProductDetail = ({
                           <StarRating rating={review.rating} />
                         </div>
                         <p className="text-sm text-gray-500">
-                          {new Date(review.createdAt).toLocaleDateString("id-ID", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "id-ID",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
 
                       {/* Date for mobile */}
                       <p className="text-xs text-gray-500 sm:hidden mb-2">
-                          {new Date(review.createdAt).toLocaleDateString("id-ID", {
+                        {new Date(review.createdAt).toLocaleDateString(
+                          "id-ID",
+                          {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
-                          })}
+                          }
+                        )}
                       </p>
-                      
+
                       <p className="text-gray-700 mt-2 mb-4 leading-relaxed text-sm sm:text-base">
                         {review.comment}
                       </p>
@@ -313,20 +327,30 @@ const ProductDetail = ({
                       {review.media && review.media.length > 0 && (
                         <div className="flex gap-3 overflow-x-auto pb-2">
                           {review.media.map((item, idx) => (
-                            <div key={idx} className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 bg-black rounded-md overflow-hidden border">
-                              {item.type === 'video' ? (
+                            <div
+                              key={idx}
+                              className="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 bg-black rounded-md overflow-hidden border"
+                            >
+                              {item.type === "video" ? (
                                 <div className="relative w-full h-full group">
-                                  <video 
-                                    src={item.url} 
+                                  <video
+                                    src={item.url}
                                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
-                                    controls 
+                                    controls
                                   />
                                   <div className="absolute top-2 right-2 text-white pointer-events-none">
-                                     <PlayCircle size={20} className="drop-shadow-md"/>
+                                    <PlayCircle
+                                      size={20}
+                                      className="drop-shadow-md"
+                                    />
                                   </div>
                                 </div>
                               ) : (
-                                <a href={item.url} target="_blank" rel="noopener noreferrer">
+                                <a
+                                  href={item.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
                                   <img
                                     src={item.url}
                                     alt={`Review media ${idx}`}
@@ -338,7 +362,6 @@ const ProductDetail = ({
                           ))}
                         </div>
                       )}
-
                     </div>
                   </div>
                 ))}
