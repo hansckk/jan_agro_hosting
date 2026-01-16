@@ -62,3 +62,4 @@ pids
 
 # Sensitive credentials
 backend/mongoDB_atlas.txt
+jan-agro-889a63abb48a.json
