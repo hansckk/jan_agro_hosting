@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "jan-agro",
+  "private_key_id": "889a63abb48a09c450086025da46a64ee9ac721a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEugIBADANBgkqhkiG9w0BAQEFAASCBKQwggSgAgEAAoIBAQDDp4RHEWZjIvmA\nG60MbFogaAEfuoRkc5LLHbWnwaNyagDzwYpXkAha307yxjzQZa7VW93vb/aowPXu\nNOKvayN5xYISYKk3EhP9q8Oe/w4Q/ddEB4DgWhCesrUs7AAMa+5vEFXa4BydPHSs\nwS7lDxAZ9JfCCpleVgwZGlWHTnN6/0qpauDHZ92mFyKRXKGEohlwV/9KKPJPcl8v\nv5UwZRSppwPRz3/yDx6BdIHitV0B6gstIFXW00xyxNqYXYoMdKH4Cbu9cvAnMwdW\nCq6wOs0ftxc2ZawsOi1OUoizAJMgzhxYT1OyrOPCEQ5EWUPCDpCdHKiTlVR46sAE\nJVgTvBXdAgMBAAECgf9P3ZGhcPjafuxZ3vJEn/YqREoxKXHhj0vcncQJNoIBskOx\nPM+77o96iK0xbLpmVxuG/HkbxBhryliZY/0knhddHcJ6vfpVAIwogHTZ8kNLrFKy\n8l0pN5qRLWHHdI6Qg35Q19oz/kev5325ByKdXgi0j6NjEfCJEZbeqGFBWkTJb7XA\nVJ9pM7OYQ5ExB9ZUPgOwCR/46oAKPaRzFagkeVlIr8B4qYbYCFjJpCU+sRQu7Fzh\nhNTEr/ll3kEDQdMVemRGz/8VNTkV+riBEh3lDrIRBNJkV1AKUZzrCijSQOQJvwOu\n17DMqNrIXfN19IlyIhPUMl6RNMutUAAuJfuPKsECgYEA5lgOuLYrDYWnxnrZg6sB\nswez/bvsB1rMFdZcs7d3BzVoT8bEFJRkkOM/OG5DaGcghIskavVlLeZr4F84phdn\ng2wd0r/J+OQSx781C6nRsauBmRn44LtP6ZT74TOshlwvp4eR+Sq18g0o/XifMiGx\nmxfKQx4E6PSzdyLezZwsKb0CgYEA2XJVHa06FnFclv3GaiLsud9U2R1y4UOtMGKh\nFs+TbtAGRWrLuvfbFMuO3fHIIQGsBAzWps8C9esMqaxBdhuBiu/ciu51/x3iQNq2\nt+62Da1AykWr/LoV/Bm654gdorbPUrE+RpXOJUsGHXdwlO5WxxGC59/xhYZmnqOq\nlPt7jqECgYBGHXXVufXe9tk8LHb7gllREr4yNTrCflvzJb4wIl+D/TjUV8+l6Am4\npMPAvKeeJw4Z6nTabfovf51EvhdzT1p+AbIOTb0AGwSwcr6F31pqN6eKYAKG/d10\nX5pQUbdparRCzZyceOjLVkAs78Odse3rJNG3nnKmKp5aXG3vrmMvDQKBgBfdpZvp\nPFvkO05TMijKBoNsEKr3wXkZ7XNHD/kp9TuPV3DdBNlThNcmdFrFw7pjrZaQNir+\nw4tsLeqdfl3RLQmrw9/3xjmm9QM7Phy39YFQx7CrrvHBFtKhnFL3LJGEUQL5cyVa\nIdMUBerMBi5CboHQ2TZL7P1DwBWfTwSlCW2hAoGAf2PSm+m5WZSDtDAw2SieuU4j\nT6VY68/v0ziRLwFwJJYLAXUiMyp9nr/4b7WzUQq/JvwgKuYRrvcZGDI/X2nFPNhy\n1NUVxu7H8qv3fKIiVnhSU8w4mEC/fkwxb97P6KbE7S/aNMFS85d075+iwaVklD/F\nGROHiec1jnTheWkv12Q=\n-----END PRIVATE KEY-----\n",
+  "client_email": "uploader-bot@jan-agro.iam.gserviceaccount.com",
+  "client_id": "103105976500050817716",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/uploader-bot%40jan-agro.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
