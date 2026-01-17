@@ -12,11 +12,11 @@ import {
 import EditProfileModal from "../components/EditProfileModal";
 import axios from "axios";
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.MODE === "production"
-    ? "/api"
-    : "http://localhost:3000/api");
+// const API_URL =
+//   import.meta.env.VITE_API_URL ||
+//   (import.meta.env.MODE === "production"
+//     ? "/api"
+//     : "http://localhost:3000/api");
 
 const formatPhoneNumber = (phone) => {
   if (!phone) return "-";
@@ -36,7 +36,7 @@ const formatPhoneNumber = (phone) => {
   return formatted;
 };
 
-const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
+const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess, API_URL }) => {
   const [preview, setPreview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
@@ -82,13 +82,16 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
               "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         console.log("[Frontend] Upload response:", response.data);
 
         if (response.data.success) {
-          console.log("[Frontend] Avatar URL from server:", response.data.user.avatar);
+          console.log(
+            "[Frontend] Avatar URL from server:",
+            response.data.user.avatar,
+          );
           onAvatarUpdateSuccess(response.data.user);
           setPreview(response.data.user.avatar);
           setUploadError("");

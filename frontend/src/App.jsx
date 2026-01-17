@@ -619,6 +619,7 @@ function App() {
                   user={user}
                   onProfileSave={handleProfileSave}
                   onAvatarUpdateSuccess={handleAvatarUpdateSuccess}
+                  API_URL={API_URL}
                 />
               ) : (
                 <Home API_URL={API_URL} />

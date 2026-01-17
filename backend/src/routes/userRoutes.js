@@ -6,11 +6,21 @@ const multer = require("multer");
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const fs = require("fs");
 
-const serviceKey = path.join(__dirname, "../jan-agro-889a63abb48a.json");
+const serviceKeyPath = path.join(__dirname, "../jan-agro-889a63abb48a.json");
+
+if (!fs.existsSync(serviceKeyPath)) {
+  console.error(
+    "❌ CRITICAL ERROR: Google Cloud Key File NOT FOUND at:",
+    serviceKeyPath,
+  );
+} else {
+  console.log("✅ Google Cloud Key File found at:", serviceKeyPath);
+}
 
 const storageGCS = new Storage({
-  keyFilename: serviceKey,
+  keyFilename: serviceKeyPath,
   projectId: "jan-agro",
 });
 
@@ -124,7 +134,7 @@ router.put(
         error: error.message,
       });
     }
-  }
+  },
 );
 
 router.put("/update-address/:userId", authenticateToken, async (req, res) => {
