@@ -7,16 +7,18 @@ const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const bcrypt = require("bcrypt");
 
+// huhu
+
 // 1. DEBUGGING: Cek apakah env terbaca di terminal saat server jalan
 console.log("--- Cek Cloudinary Config ---");
 console.log(
   "Cloud Name:",
-  process.env.CLOUDINARY_CLOUD_NAME ? "Terbaca" : "MISSING"
+  process.env.CLOUDINARY_CLOUD_NAME ? "Terbaca" : "MISSING",
 );
 console.log("API Key:", process.env.CLOUDINARY_API_KEY ? "Terbaca" : "MISSING");
 console.log(
   "API Secret:",
-  process.env.CLOUDINARY_API_SECRET ? "Terbaca" : "MISSING"
+  process.env.CLOUDINARY_API_SECRET ? "Terbaca" : "MISSING",
 );
 
 // 2. Konfigurasi Cloudinary
@@ -113,7 +115,7 @@ router.put(
         message: "Terjadi kesalahan pada server database.",
       });
     }
-  }
+  },
 );
 
 router.put("/update-address/:userId", authenticateToken, async (req, res) => {
