@@ -1,33 +1,46 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Camera, User, Mail, Calendar, Edit, AtSign, Phone, MapPin } from "lucide-react";
+import {
+  Camera,
+  User,
+  Mail,
+  Calendar,
+  Edit,
+  AtSign,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import EditProfileModal from "../components/EditProfileModal";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === "production"
+    ? "/api"
+    : "http://localhost:3000/api");
 
 const formatPhoneNumber = (phone) => {
-    if (!phone) return "-";
-    const digits = phone.replace(/\D/g, "");
-    let formatted = "+62 ";
-    if (digits.length > 4) {
-      formatted += digits.substring(0, 4) + "-";
-      if (digits.length > 8) {
-        formatted += digits.substring(4, 8) + "-";
-        formatted += digits.substring(8);
-      } else {
-        formatted += digits.substring(4);
-      }
+  if (!phone) return "-";
+  const digits = phone.replace(/\D/g, "");
+  let formatted = "+62 ";
+  if (digits.length > 4) {
+    formatted += digits.substring(0, 4) + "-";
+    if (digits.length > 8) {
+      formatted += digits.substring(4, 8) + "-";
+      formatted += digits.substring(8);
     } else {
-      formatted += digits;
+      formatted += digits.substring(4);
     }
-    return formatted;
+  } else {
+    formatted += digits;
+  }
+  return formatted;
 };
 
 const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
   const [preview, setPreview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
-  const [uploadError, setUploadError] = useState('');
+  const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
     if (user && user.avatar) {
@@ -48,8 +61,8 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-            setUploadError("Autentikasi gagal. Silakan login kembali.");
-            return;
+          setUploadError("Autentikasi gagal. Silakan login kembali.");
+          return;
         }
 
         const response = await axios.put(
@@ -60,22 +73,23 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
               "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
-        
+
         if (response.data.success) {
-          onAvatarUpdateSuccess(response.data.user); 
-          setPreview(response.data.user.avatar); 
-          setUploadError('');
+          onAvatarUpdateSuccess(response.data.user);
+          setPreview(response.data.user.avatar);
+          setUploadError("");
         }
       } catch (error) {
         console.error("Upload error:", error);
-        const message = error.response?.data?.message || "Gagal mengupload gambar.";
+        const message =
+          error.response?.data?.message || "Gagal mengupload gambar.";
         setUploadError(message);
         setPreview(user?.avatar || null);
       }
     } else {
-        setUploadError("Hanya file gambar yang diizinkan (jpg, png).");
+      setUploadError("Hanya file gambar yang diizinkan (jpg, png).");
     }
   };
 
@@ -84,7 +98,11 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
   };
 
   if (!user) {
-    return <div className="pt-24 text-center">Silakan masuk untuk melihat profil Anda.</div>;
+    return (
+      <div className="pt-24 text-center">
+        Silakan masuk untuk melihat profil Anda.
+      </div>
+    );
   }
 
   const handleSaveFromModal = async (userId, payload) => {
@@ -113,9 +131,11 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
                 Kelola detail profil dan akun Anda.
               </p>
             </div>
-            
-            {uploadError && <p className="text-center text-red-500 mb-4">{uploadError}</p>}
-            
+
+            {uploadError && (
+              <p className="text-center text-red-500 mb-4">{uploadError}</p>
+            )}
+
             <div className="flex flex-col items-center space-y-4 mb-8 sm:mb-12">
               <div className="relative">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200 overflow-hidden">
@@ -144,7 +164,9 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
                   accept="image/png, image/jpeg"
                 />
               </div>
-              <h2 className="text-xl sm:text-2xl font-semibold text-black">{user.name}</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold text-black">
+                {user.name}
+              </h2>
             </div>
 
             <div className="border-t border-gray-200 pt-6 sm:pt-8">
@@ -153,25 +175,52 @@ const Profile = ({ user, onProfileSave, onAvatarUpdateSuccess }) => {
               </h3>
               <div className="space-y-4">
                 {[
-                    { Icon: User, label: "Nama Lengkap", val: user.name },
-                    { Icon: AtSign, label: "Username", val: user.username },
-                    { Icon: Mail, label: "Email", val: user.email },
-                    { Icon: Phone, label: "Phone Number", val: formatPhoneNumber(user.phone) },
-                    { Icon: MapPin, label: "Address", val: user.address || "Alamat belum diatur", multiline: true },
-                    { Icon: Calendar, label: "Joined Since", val: user.joinDate || new Date(user.createdAt).toLocaleDateString("id-ID") },
+                  { Icon: User, label: "Nama Lengkap", val: user.name },
+                  { Icon: AtSign, label: "Username", val: user.username },
+                  { Icon: Mail, label: "Email", val: user.email },
+                  {
+                    Icon: Phone,
+                    label: "Phone Number",
+                    val: formatPhoneNumber(user.phone),
+                  },
+                  {
+                    Icon: MapPin,
+                    label: "Address",
+                    val: user.address || "Alamat belum diatur",
+                    multiline: true,
+                  },
+                  {
+                    Icon: Calendar,
+                    label: "Joined Since",
+                    val:
+                      user.joinDate ||
+                      new Date(user.createdAt).toLocaleDateString("id-ID"),
+                  },
                 ].map((item, idx) => (
-                    <div key={idx} className="flex flex-col sm:flex-row sm:items-start p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center mb-2 sm:mb-0">
-                            <item.Icon className="text-gray-400 mr-4 flex-shrink-0" size={20} />
-                            <p className="text-sm text-gray-500 sm:w-32 sm:hidden">{item.label}</p>
-                        </div>
-                        <div className="flex-grow sm:ml-4">
-                            <p className="hidden sm:block text-sm text-gray-500">{item.label}</p>
-                            <p className={`text-black font-medium text-sm sm:text-base ${item.multiline ? 'whitespace-pre-line break-words' : 'break-all'}`}>
-                                {item.val}
-                            </p>
-                        </div>
+                  <div
+                    key={idx}
+                    className="flex flex-col sm:flex-row sm:items-start p-4 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center mb-2 sm:mb-0">
+                      <item.Icon
+                        className="text-gray-400 mr-4 flex-shrink-0"
+                        size={20}
+                      />
+                      <p className="text-sm text-gray-500 sm:w-32 sm:hidden">
+                        {item.label}
+                      </p>
                     </div>
+                    <div className="flex-grow sm:ml-4">
+                      <p className="hidden sm:block text-sm text-gray-500">
+                        {item.label}
+                      </p>
+                      <p
+                        className={`text-black font-medium text-sm sm:text-base ${item.multiline ? "whitespace-pre-line break-words" : "break-all"}`}
+                      >
+                        {item.val}
+                      </p>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
