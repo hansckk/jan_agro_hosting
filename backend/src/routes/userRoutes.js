@@ -8,21 +8,45 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 
-const serviceKeyPath = path.join(__dirname, "../jan-agro-889a63abb48a.json");
+const serviceKeyPath = path.join(__dirname, "../jan-agro-4a0a53845f21.json");
 
-if (!fs.existsSync(serviceKeyPath)) {
-  console.error(
-    "❌ CRITICAL ERROR: Google Cloud Key File NOT FOUND at:",
-    serviceKeyPath,
-  );
-} else {
-  console.log("✅ Google Cloud Key File found at:", serviceKeyPath);
+let storageGCS;
+
+try {
+  // Baca file JSON secara manual
+  if (fs.existsSync(serviceKeyPath)) {
+    const rawFileData = fs.readFileSync(serviceKeyPath, "utf-8");
+    const keyData = JSON.parse(rawFileData);
+
+    // KUNCI PERBAIKAN:
+    // Terkadang private_key terbacanya error karena karakter \n.
+    // Kode ini akan memaksa replace karakter "\n" (teks) menjadi Enter sungguhan.
+    const privateKeyFixed = keyData.private_key.includes("\\n")
+      ? keyData.private_key.replace(/\\n/g, "\n")
+      : keyData.private_key;
+
+    storageGCS = new Storage({
+      projectId: "jan-agro",
+      credentials: {
+        client_email: keyData.client_email,
+        private_key: privateKeyFixed,
+      },
+    });
+    console.log(
+      "✅ Google Cloud Storage initialized with manual credential fixing.",
+    );
+  } else {
+    // Fallback: Coba gunakan Default Credentials jika file tidak ada
+    console.warn(
+      "⚠️ Warning: JSON Key file not found. Trying Application Default Credentials...",
+    );
+    storageGCS = new Storage({ projectId: "jan-agro" });
+  }
+} catch (error) {
+  console.error("❌ Gagal inisialisasi GCS:", error);
+  // Default fallback agar server tidak crash saat start
+  storageGCS = new Storage({ projectId: "jan-agro" });
 }
-
-const storageGCS = new Storage({
-  keyFilename: serviceKeyPath,
-  projectId: "jan-agro",
-});
 
 const bucketName = "jan-agro-storage";
 const bucket = storageGCS.bucket(bucketName);
