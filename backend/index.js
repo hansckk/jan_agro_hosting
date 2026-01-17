@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv").config(); 
+require("dotenv").config(); // Load .env at the very top
 const app = express();
 
 app.use((req, res, next) => {
@@ -10,7 +10,7 @@ app.use((req, res, next) => {
 const port = process.env.PORT || 3000;
 const cors = require("cors");
 const path = require("path");
-const http = require("http"); 
+const http = require("http"); // Import HTTP
 const { Server } = require("socket.io");
 const { connectDatabase } = require("./src/database/database");
 
